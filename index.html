@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rado's notes</title>
+  <!-- PWA / PNG icons -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+  <meta name="theme-color" id="themeColor" content="#0f4ac6">
+  <style>
+    *{box-sizing:border-box}
+    html,body,#app{height:100%;}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);min-height:100vh;}
+    :root{
+      --bg:#0b1220;--surface:#0f1724;--muted:#99a0b3;--text:#e6eef8;
+      --accent:#1e40af;--accent-contrast:#fff;--shadow:rgba(2,6,23,0.6);
+    }
+
+    /* ===== THEMES ===== */
+    body[data-theme="dark-blue"]{--bg:#071020;--surface:#0b1630;--muted:#9fb3d6;--text:#e9f4ff;--accent:#0f4ac6;--accent-contrast:#fff;}
+    body[data-theme="teal"]{--bg:#071918;--surface:#082324;--muted:#9fd7cc;--text:#e9fffb;--accent:#0fb9a3;--accent-contrast:#04231d;}
+    body[data-theme="purple"]{--bg:#0b0716;--surface:#170f2a;--muted:#cbbbe6;--text:#f6f1ff;--accent:#6b21a8;--accent-contrast:#fff;}
+    body[data-theme="emerald"]{--bg:#07120b;--surface:#0e2414;--muted:#bfe8c9;--text:#f3fff6;--accent:#0f8b4a;--accent-contrast:#fff;}
+    body[data-theme="slate"]{--bg:#0b0f14;--surface:#0f1620;--muted:#9aa6b2;--text:#e6eef3;--accent:#475569;--accent-contrast:#fff;}
+    body[data-theme="ocean"]{--bg:#02151d;--surface:#032530;--muted:#9ed4e1;--text:#e8faff;--accent:#0077b6;--accent-contrast:#fff;}
+    body[data-theme="sunset"]{--bg:#1f0a07;--surface:#2a120d;--muted:#f9c5a3;--text:#fff1eb;--accent:#ff6b35;--accent-contrast:#fff;}
+    body[data-theme="rose"]{--bg:#1d0b11;--surface:#2a121a;--muted:#f2b5c4;--text:#ffeef3;--accent:#e11d48;--accent-contrast:#fff;}
+    body[data-theme="amber"]{--bg:#1b1303;--surface:#241a06;--muted:#e9d6a3;--text:#fffbe6;--accent:#f59e0b;--accent-contrast:#241a06;}
+    body[data-theme="forest"]{--bg:#08140a;--surface:#122012;--muted:#bfe8c0;--text:#e9ffe9;--accent:#166534;--accent-contrast:#fff;}
+    body[data-theme="midnight"]{--bg:#00010a;--surface:#07091a;--muted:#b3b7cc;--text:#f1f4ff;--accent:#4338ca;--accent-contrast:#fff;}
+    body[data-theme="silver"]{--bg:#111314;--surface:#181b1d;--muted:#d1d5db;--text:#f3f4f6;--accent:#9ca3af;--accent-contrast:#000;}
+    body[data-theme="coral"]{--bg:#1b0e0c;--surface:#2b1613;--muted:#f5b0a2;--text:#fff3f0;--accent:#fb7185;--accent-contrast:#fff;}
+    body[data-theme="ice"]{--bg:#081018;--surface:#0d1822;--muted:#bde0fe;--text:#eaf6ff;--accent:#3b82f6;--accent-contrast:#fff;}
+    body[data-theme="neon"]{--bg:#05000a;--surface:#0b0012;--muted:#c7aefc;--text:#f5ebff;--accent:#8b5cf6;--accent-contrast:#fff;}
+
+    #app{display:flex;gap:18px;padding:18px;background:var(--bg);min-height:100vh;color:var(--text)}
+    .sidebar{width:320px;max-width:40vw;background:var(--surface);border-radius:12px;padding:12px;box-shadow:0 6px 18px var(--shadow);display:flex;flex-direction:column;}
+    .brand{display:flex;align-items:center;gap:10px;padding:8px 6px}
+    .logo{width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:var(--accent-contrast);font-weight:700}
+    .brand h1{font-size:16px;margin:0}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:6px}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;transition:0.2s}
+    button:hover{background:color-mix(in srgb,var(--accent) 20%, transparent)}
+    button.primary{background:var(--accent);color:var(--accent-contrast);border:none}
+    input.search{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text)}
+
+    .theme-export-row{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+    .themes{display:flex;flex-wrap:wrap;gap:8px}
+    .theme-swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid rgba(255,255,255,0.05)}
+
+    .notes-list{overflow:auto;margin-top:8px;padding:6px;display:flex;flex-direction:column;gap:6px}
+    .note-item{padding:10px;border-radius:10px;cursor:pointer}
+    .note-item:hover{background:color-mix(in srgb,var(--accent) 8%, transparent)}
+    .note-title{font-weight:600}
+    .note-meta{font-size:12px;color:var(--muted)}
+
+    .editor{flex:1;display:flex;flex-direction:column;background:var(--surface);border-radius:12px;padding:14px;box-shadow:0 6px 18px var(--shadow);min-height:0}
+    .editor-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .title-input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:18px}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+    textarea.content{flex:1;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);resize:none;font-family:inherit;line-height:1.5;margin-top:12px;min-height:0;width:100%;box-sizing:border-box;overflow:auto}
+    .meta-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)}
+    footer{font-size:12px;color:var(--muted);text-align:center;padding:10px 0;background:transparent}
+    @media (max-width:780px){
+      #app { flex-direction: column; padding: 12px; }
+      .sidebar { 
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 12px;
+      }
+      .editor {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark-blue">
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">📝</div>
+        <div><h1>Rado's Notes</h1><div style="font-size:12px;color:var(--muted)">Local, simple, fast, optimised</div></div>
+      </div>
+
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search notes...">
+        <button id="newBtn" class="primary">New</button>
+      </div>
+
+      <div class="theme-export-row">
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="font-size:13px;color:var(--muted)">Theme</div>
+          <div class="themes" id="themeSwatches"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="exportBtn">Export</button>
+          <button id="importBtn">Import</button>
+          <input id="fileInput" type="file" accept="application/json" style="display:none">
+        </div>
+      </div>
+
+      <div class="notes-list" id="notesList"></div>
+      <footer>Saved locally!</footer>
+    </aside>
+
+    <main class="editor">
+      <div class="editor-top">
+        <input id="title" class="title-input" placeholder="Note title">
+        <div class="top-actions">
+          <button id="saveBtn" class="primary">Save</button>
+          <button id="deleteBtn">Delete</button>
+        </div>
+      </div>
+      <textarea id="content" class="content" placeholder="Start writing..." rows="18"></textarea>
+      <div class="meta-row">
+        <div id="lastSaved">No note selected</div>
+        <div id="noteCount">0 notes</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const $ = s=>document.querySelector(s);
+    const LS_KEY='notes_v2'; const THEME_KEY='theme_v2';
+    const uid=()=>Math.random().toString(36).slice(2,9);
+    const formatTime=i=>new Date(i).toLocaleString();
+
+    let notes=[];let currentId=null;let autosave=null;
+    const notesList=$('#notesList'),titleIn=$('#title'),contentIn=$('#content'),
+      saveBtn=$('#saveBtn'),newBtn=$('#newBtn'),deleteBtn=$('#deleteBtn'),
+      searchIn=$('#search'),lastSaved=$('#lastSaved'),noteCount=$('#noteCount'),
+      exportBtn=$('#exportBtn'),importBtn=$('#importBtn'),fileInput=$('#fileInput');
+
+    const THEMES=[
+      'dark-blue','teal','purple','emerald','slate',
+      'ocean','sunset','rose','amber','forest','midnight','silver','coral','ice','neon'
+    ];
+    const themeSwatches=$('#themeSwatches');
+    (function createSwatches(){
+      const initialTheme = document.body.dataset.theme;
+      THEMES.forEach(t=>{
+        const d = document.createElement('div');
+        d.className = 'theme-swatch';
+        d.dataset.theme = t;
+       
+        const prev = document.body.dataset.theme;
+        document.body.dataset.theme = t;
+        const cs = getComputedStyle(document.body);
+        const accent = cs.getPropertyValue('--accent').trim() || '#666';
+        const bg = cs.getPropertyValue('--bg').trim() || '#000';
+        document.body.dataset.theme = prev;
+        d.style.background = `linear-gradient(135deg, ${accent}, ${bg})`;
+        d.onclick = ()=>{ document.body.dataset.theme = t; localStorage.setItem(THEME_KEY,t); };
+        themeSwatches.appendChild(d);
+      });
+      document.body.dataset.theme = initialTheme;
+    })();
+
+    function load(){
+      notes=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+      document.body.dataset.theme=localStorage.getItem(THEME_KEY)||'dark-blue';
+      renderList();
+    }
+    function persist(){localStorage.setItem(LS_KEY,JSON.stringify(notes));}
+    function renderList(f=''){
+      notesList.innerHTML='';
+      const filtered=notes.slice().reverse().filter(n=>{
+        const q=f.toLowerCase();return !f||n.title.toLowerCase().includes(q)||n.content.toLowerCase().includes(q);
+      });
+      if(!filtered.length){notesList.innerHTML='<div style=\"padding:18px;color:var(--muted)\">No notes yet — click New</div>';}
+      filtered.forEach(n=>{
+        const el=document.createElement('div');
+        el.className='note-item';
+        el.innerHTML=`<div class=\"note-title\">${escapeHtml(n.title||'Untitled')}</div><div class=\"note-meta\">${formatTime(n.updatedAt)}</div>`;
+        el.onclick=()=>open(n.id);notesList.appendChild(el);
+      });
+      noteCount.textContent=notes.length+(notes.length===1?' note':' notes');
+    }
+    function escapeHtml(s){return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+    function open(id){
+      const n=notes.find(x=>x.id===id);if(!n)return;
+      currentId=id;titleIn.value=n.title;contentIn.value=n.content;lastSaved.textContent='Edited: '+formatTime(n.updatedAt);
+    }
+    function save(){
+      if(!currentId){const n={id:uid(),title:titleIn.value.trim(),content:contentIn.value,updatedAt:new Date().toISOString()};notes.push(n);currentId=n.id;}
+      const n=notes.find(x=>x.id===currentId);if(!n)return;
+      n.title=titleIn.value.trim();n.content=contentIn.value;n.updatedAt=new Date().toISOString();
+      persist();renderList(searchIn.value.trim());lastSaved.textContent='Saved: '+formatTime(n.updatedAt);
+    }
+    function del(){
+      if(!currentId)return;if(!confirm('Delete this note?'))return;
+      notes=notes.filter(x=>x.id!==currentId);persist();currentId=null;titleIn.value='';contentIn.value='';
+      renderList(searchIn.value.trim());lastSaved.textContent='Deleted';
+    }
+    searchIn.oninput=e=>renderList(e.target.value.trim());
+    newBtn.onclick=()=>{const n={id:uid(),title:'',content:'',updatedAt:new Date().toISOString()};notes.push(n);persist();renderList();open(n.id);};
+    saveBtn.onclick=save;deleteBtn.onclick=del;
+    function auto(){clearTimeout(autosave);autosave=setTimeout(save,800);}
+    titleIn.oninput=auto;contentIn.oninput=auto;
+
+    exportBtn.onclick=()=>{
+      const blob=new Blob([JSON.stringify({notes,exportedAt:new Date()},null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');
+      a.href=url;a.download='notes-export.json';a.click();URL.revokeObjectURL(url);
+    };
+    importBtn.onclick=()=>fileInput.click();
+    fileInput.onchange=async e=>{
+      const f=e.target.files[0];if(!f)return;
+      try{const txt=await f.text();const obj=JSON.parse(txt);
+        if(obj.notes){const imp=obj.notes.map(n=>({...n,id:uid()}));notes=notes.concat(imp);persist();renderList();alert('Imported '+imp.length+' notes');}
+      }catch(err){alert('Import failed');}
+      fileInput.value='';
+    };
+
+    load();
+    if(notes.length)open(notes[notes.length-1].id);
+  </script>
+</body>
+</html>
